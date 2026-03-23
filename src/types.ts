@@ -112,8 +112,18 @@ export interface UserCreatePayload {
 }
 
 export interface UserUpdatePayload {
+  name?: string
+  email?: string
+  password?: string
   role?: 'admin' | 'employee'
   is_active?: boolean
+}
+
+export interface CurrentUserUpdatePayload {
+  name?: string
+  email?: string
+  current_password?: string
+  new_password?: string
 }
 
 export interface PaginationParams {

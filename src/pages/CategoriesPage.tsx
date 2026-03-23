@@ -16,6 +16,8 @@ import {
   TextAreaField,
   TextField,
 } from '../components'
+import { useConfirm } from '../confirm'
+import { useToast } from '../toast'
 import type { Category, CategoryPayload, Session } from '../types'
 
 const initialForm: CategoryPayload = {
@@ -31,6 +33,8 @@ export function CategoriesPage({ session }: { session: Session }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const queryClient = useQueryClient()
   const isAdmin = session.user.role === 'admin'
+  const { showToast } = useToast()
+  const confirm = useConfirm()
 
   const categoriesQuery = useQuery({
     queryKey: ['categories', page, search],
@@ -53,6 +57,12 @@ export function CategoriesPage({ session }: { session: Session }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] })
+      showToast(
+        editingCategory
+          ? 'Categoria actualizada correctamente.'
+          : 'Categoria creada correctamente.',
+        'success',
+      )
       resetForm()
     },
   })
@@ -62,6 +72,7 @@ export function CategoriesPage({ session }: { session: Session }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] })
+      showToast('Categoria eliminada correctamente.', 'success')
       resetForm()
     },
   })
@@ -146,7 +157,19 @@ export function CategoriesPage({ session }: { session: Session }) {
                           <button
                             type="button"
                             className="ghost-button ghost-button-warn"
-                            onClick={() => deleteCategoryMutation.mutate(category.id)}
+                            onClick={async () => {
+                              const approved = await confirm({
+                                title: 'Eliminar categoria',
+                                description: `Vas a eliminar la categoria "${category.name}". Esta accion no se puede deshacer.`,
+                                confirmLabel: 'Eliminar',
+                                cancelLabel: 'Cancelar',
+                                tone: 'danger',
+                              })
+                              if (!approved) {
+                                return
+                              }
+                              deleteCategoryMutation.mutate(category.id)
+                            }}
                           >
                             Eliminar
                           </button>
@@ -188,6 +211,10 @@ export function CategoriesPage({ session }: { session: Session }) {
             className="stack"
             onSubmit={(event) => {
               event.preventDefault()
+              if (!form.name.trim()) {
+                showToast('El nombre de la categoria es obligatorio.', 'error')
+                return
+              }
               saveCategoryMutation.mutate(form)
             }}
           >

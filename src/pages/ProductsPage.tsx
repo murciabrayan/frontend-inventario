@@ -18,6 +18,8 @@ import {
   TextAreaField,
   TextField,
 } from '../components'
+import { useConfirm } from '../confirm'
+import { useToast } from '../toast'
 import type { Product, ProductPayload, Session } from '../types'
 
 const initialForm: ProductPayload = {
@@ -42,6 +44,8 @@ export function ProductsPage({ session }: { session: Session }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const queryClient = useQueryClient()
   const isAdmin = session.user.role === 'admin'
+  const { showToast } = useToast()
+  const confirm = useConfirm()
 
   const productsQuery = useQuery({
     queryKey: ['products', page, search, categoryFilter, statusFilter, lowStockFilter],
@@ -77,6 +81,10 @@ export function ProductsPage({ session }: { session: Session }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] })
+      showToast(
+        editingProduct ? 'Producto actualizado correctamente.' : 'Producto creado correctamente.',
+        'success',
+      )
       resetForm()
     },
   })
@@ -86,6 +94,7 @@ export function ProductsPage({ session }: { session: Session }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] })
+      showToast('Producto desactivado correctamente.', 'success')
     },
   })
 
@@ -195,7 +204,19 @@ export function ProductsPage({ session }: { session: Session }) {
                 })
                 setIsModalOpen(true)
               }}
-              onDeactivate={(product) => deactivateProductMutation.mutate(product.id)}
+              onDeactivate={async (product) => {
+                const approved = await confirm({
+                  title: 'Desactivar producto',
+                  description: `Vas a desactivar "${product.name}". El producto dejara de estar disponible para nuevas operaciones activas.`,
+                  confirmLabel: 'Desactivar',
+                  cancelLabel: 'Cancelar',
+                  tone: 'danger',
+                })
+                if (!approved) {
+                  return
+                }
+                deactivateProductMutation.mutate(product.id)
+              }}
             />
             <PaginationControls
               count={productsQuery.data.count}
@@ -224,6 +245,14 @@ export function ProductsPage({ session }: { session: Session }) {
             className="form-grid"
             onSubmit={(event) => {
               event.preventDefault()
+              if (!form.name.trim() || !form.sku.trim()) {
+                showToast('Completa el nombre y el SKU del producto.', 'error')
+                return
+              }
+              if (!form.category) {
+                showToast('Selecciona una categoria para el producto.', 'error')
+                return
+              }
               saveProductMutation.mutate(form)
             }}
           >

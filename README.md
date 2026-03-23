@@ -1,73 +1,81 @@
-# React + TypeScript + Vite
+# Sistema de Inventario Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend administrativo del sistema de inventario, construido con React, TypeScript y Vite.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19
+- TypeScript
+- Vite
+- TanStack Query
 
-## React Compiler
+## Modulos principales
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Login
+- Dashboard
+- Productos
+- Categorias
+- Movimientos
+- Reportes
+- Usuarios
+- Perfil
 
-## Expanding the ESLint configuration
+## Funcionalidades
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Inicio de sesion con JWT
+- Sidebar con modo colapsable
+- Modales reutilizables para crear y editar
+- Confirmaciones visuales para acciones sensibles
+- Toasts de exito y error
+- Filtros y paginacion
+- Reportes con graficas
+- Exportacion de reportes a PDF desde el navegador
+- Cambio de contrasena con validaciones visuales
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Variables de entorno
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Crea un archivo `.env` opcional:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_API_URL=http://127.0.0.1:8000/api
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Instalacion
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```powershell
+npm install
 ```
+
+## Desarrollo
+
+```powershell
+npm run dev
+```
+
+## Build
+
+```powershell
+npm run build
+```
+
+## Estructura
+
+```text
+src/
+  api.ts
+  App.tsx
+  components.tsx
+  confirm.tsx
+  toast.tsx
+  types.ts
+  pages/
+```
+
+## Credenciales demo
+
+- Email: `admin@inventario.com`
+- Password: `Admin12345!`
+
+## Estado
+
+Proyecto listo para demostracion de portafolio y conectado a un backend Django REST con autenticacion JWT.

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchMovementReport } from '../api'
 import { EmptyState, Header, InfoCard, MovementsTable } from '../components'
+import { useToast } from '../toast'
 import type { MovementChartPoint, MovementTypeSummary, Session } from '../types'
 
 const typeLabels = {
@@ -16,6 +17,7 @@ export function ReportsPage({ session }: { session: Session }) {
   const [movementType, setMovementType] = useState('')
   const [startDate, setStartDate] = useState(monthStart)
   const [endDate, setEndDate] = useState(today)
+  const { showToast } = useToast()
 
   const reportQuery = useQuery({
     queryKey: ['movement-report', movementType, startDate, endDate],
@@ -34,6 +36,7 @@ export function ReportsPage({ session }: { session: Session }) {
 
   const exportPdf = () => {
     if (!reportQuery.data) {
+      showToast('No hay informacion para exportar.', 'error')
       return
     }
 
@@ -54,6 +57,7 @@ export function ReportsPage({ session }: { session: Session }) {
 
     const printWindow = window.open('', '_blank', 'width=1200,height=900')
     if (!printWindow) {
+      showToast('El navegador bloqueo la ventana de impresion.', 'error')
       return
     }
 
@@ -104,6 +108,7 @@ export function ReportsPage({ session }: { session: Session }) {
     `)
     printWindow.document.close()
     printWindow.focus()
+    showToast('Reporte preparado para exportacion a PDF.', 'success')
     printWindow.print()
   }
 

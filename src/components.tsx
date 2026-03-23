@@ -77,6 +77,63 @@ export function TextField({
   )
 }
 
+function EyeIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z" />
+      <circle cx="12" cy="12" r="3" />
+      {open ? null : <path d="M4 4l16 16" />}
+    </svg>
+  )
+}
+
+export function PasswordField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+}) {
+  const [visible, setVisible] = useState(false)
+
+  return (
+    <label className="field">
+      <span>{label}</span>
+      <div className="password-field-wrap">
+        <input
+          type={visible ? 'text' : 'password'}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={placeholder}
+          required
+        />
+        <button
+          type="button"
+          className="password-toggle"
+          onClick={() => setVisible((current) => !current)}
+          aria-label={visible ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+        >
+          <EyeIcon open={visible} />
+        </button>
+      </div>
+    </label>
+  )
+}
+
 export function NumberField({
   label,
   value,
@@ -127,6 +184,33 @@ export function TextAreaField({
       <span>{label}</span>
       <textarea value={value} onChange={(event) => onChange(event.target.value)} rows={4} />
     </label>
+  )
+}
+
+export function getPasswordChecks(password: string) {
+  return [
+    { label: 'Minimo 8 caracteres', valid: password.length >= 8 },
+    { label: 'Al menos una mayuscula', valid: /[A-Z]/.test(password) },
+    { label: 'Al menos un numero', valid: /\d/.test(password) },
+    { label: 'Al menos un caracter especial', valid: /[^A-Za-z0-9]/.test(password) },
+  ]
+}
+
+export function PasswordChecklist({ password }: { password: string }) {
+  const checks = getPasswordChecks(password)
+
+  return (
+    <div className="password-checklist">
+      {checks.map((check) => (
+        <div
+          key={check.label}
+          className={check.valid ? 'password-check is-valid' : 'password-check'}
+        >
+          <span className="password-check-icon">{check.valid ? '✓' : ''}</span>
+          <span>{check.label}</span>
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -271,12 +355,16 @@ export function Modal({
   subtitle,
   open,
   onClose,
+  showCloseButton = true,
+  size = 'default',
   children,
 }: {
   title: string
   subtitle?: string
   open: boolean
   onClose: () => void
+  showCloseButton?: boolean
+  size?: 'default' | 'compact'
   children: ReactNode
 }) {
   if (!open) {
@@ -286,7 +374,7 @@ export function Modal({
   return (
     <div className="modal-overlay" role="presentation">
       <div
-        className="modal-card"
+        className={size === 'compact' ? 'modal-card modal-card-compact' : 'modal-card'}
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -296,9 +384,11 @@ export function Modal({
             <h3>{title}</h3>
             {subtitle ? <p className="section-copy">{subtitle}</p> : null}
           </div>
-          <button type="button" className="ghost-button" onClick={onClose}>
-            Cerrar
-          </button>
+          {showCloseButton ? (
+            <button type="button" className="ghost-button" onClick={onClose}>
+              Cerrar
+            </button>
+          ) : null}
         </div>
         <div className="modal-body">{children}</div>
       </div>

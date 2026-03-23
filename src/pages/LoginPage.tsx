@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { loginRequest } from '../api'
+import { useToast } from '../toast'
 import type { LoginPayload, Session } from '../types'
 
 export function LoginPage({ onLogin }: { onLogin: (session: Session) => void }) {
   const [form, setForm] = useState<LoginPayload>({ email: '', password: '' })
+  const { showToast } = useToast()
 
   const loginMutation = useMutation({
     mutationFn: loginRequest,
     onSuccess: (session) => {
+      showToast('Sesion iniciada correctamente.', 'success')
       onLogin(session)
     },
   })
@@ -17,7 +20,7 @@ export function LoginPage({ onLogin }: { onLogin: (session: Session) => void }) 
     <div className="login-shell">
       <section className="login-panel">
         <div>
-          <p className="eyebrow">Acceso seguro</p>
+          <p className="eyebrow"></p>
           <h1>Sistema de inventario</h1>
           <p className="lead content-lead">
             Inicia sesion para entrar al dashboard y operar el inventario.

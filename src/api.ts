@@ -1,6 +1,7 @@
 import type {
   Category,
   CategoryPayload,
+  CurrentUserUpdatePayload,
   DashboardSummary,
   InventoryMovement,
   LoginPayload,
@@ -133,6 +134,14 @@ export function fetchDashboardSummary(session: Session) {
 
 export function fetchCurrentUser(session: Session) {
   return apiRequest<User>('/auth/me', { token: session.access })
+}
+
+export function updateCurrentUser(session: Session, payload: CurrentUserUpdatePayload) {
+  return apiRequest<User>('/auth/me', {
+    method: 'PATCH',
+    body: payload,
+    token: session.access,
+  })
 }
 
 export function fetchMovementReport(

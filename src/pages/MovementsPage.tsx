@@ -10,6 +10,7 @@ import {
   PaginationControls,
   TextAreaField,
 } from '../components'
+import { useToast } from '../toast'
 import type { Session } from '../types'
 
 export function MovementsPage({ session }: { session: Session }) {
@@ -23,6 +24,7 @@ export function MovementsPage({ session }: { session: Session }) {
   })
   const queryClient = useQueryClient()
   const isAdmin = session.user.role === 'admin'
+  const { showToast } = useToast()
 
   const productsQuery = useQuery({
     queryKey: ['products', 'movement-select'],
@@ -45,6 +47,7 @@ export function MovementsPage({ session }: { session: Session }) {
       queryClient.invalidateQueries({ queryKey: ['products'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] })
       setForm({ product: 0, movement_type: 'entrada', quantity: 0, note: '' })
+      showToast('Movimiento registrado correctamente.', 'success')
     },
   })
 
@@ -71,6 +74,14 @@ export function MovementsPage({ session }: { session: Session }) {
             className="stack"
             onSubmit={(event) => {
               event.preventDefault()
+              if (!form.product) {
+                showToast('Selecciona un producto para registrar el movimiento.', 'error')
+                return
+              }
+              if (form.quantity <= 0) {
+                showToast('La cantidad debe ser mayor a cero.', 'error')
+                return
+              }
               createMovementMutation.mutate(form)
             }}
           >
